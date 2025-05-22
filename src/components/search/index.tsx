@@ -1,0 +1,401 @@
+import type React from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ApiNormalizer } from "@/lib/api-normalizer";
+import type { DireccionSuggestion } from "@/types/direction";
+import type { DireccionType, Calle } from "@/types/direction";
+import { LoaderIcon } from "@/assets/Loader";
+import NavigationIcon from "@/assets/Navigation";
+
+interface AddressSearchProps {
+  maxSuggestions?: number;
+  onAddressSelect?: (address: DireccionSuggestion) => void;
+  onAddressesChange?: (addresses: DireccionSuggestion[]) => void;
+  placeholder?: string;
+  debug?: boolean;
+  className?: string;
+  inputClassName?: string;
+  suggestionsClassName?: string;
+  suggestionItemClassName?: string;
+  selectedAddressesClassName?: string;
+  loadingClassName?: string;
+  suggestionsContainerClassName?: string;
+  selectedAddressesContainerClassName?: string;
+  selectedAddressItemClassName?: string;
+  removeButtonClassName?: string;
+  errorClassName?: string;
+  iconClassName?: string;
+  titleClassName?: string;
+  subtitleClassName?: string;
+  coordsClassName?: string;
+  smpClassName?: string;
+  serverTimeout?: number;
+}
+
+export const AddressSearch: React.FC<AddressSearchProps> = ({
+  maxSuggestions = 10,
+  onAddressSelect,
+  onAddressesChange,
+  placeholder = "Buscar dirección o coordenadas...",
+  debug = false,
+  className = "",
+  inputClassName = "",
+  suggestionsClassName = "",
+  suggestionItemClassName = "",
+  selectedAddressesClassName = "",
+  loadingClassName = "",
+  suggestionsContainerClassName = "",
+  selectedAddressesContainerClassName = "",
+  selectedAddressItemClassName = "",
+  removeButtonClassName = "",
+  errorClassName = "",
+  iconClassName = "",
+  titleClassName = "",
+  subtitleClassName = "",
+  coordsClassName = "",
+  smpClassName = "",
+  serverTimeout = 5000,
+}) => {
+  const [searchText, setSearchText] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<DireccionSuggestion[]>([]);
+  const [selectedAddresses, setSelectedAddresses] = useState<
+    DireccionSuggestion[]
+  >([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const normalizadorRef = useRef<ApiNormalizer | null>(null);
+
+  // Initialize the ApiNormalizer on component mount
+  useEffect(() => {
+    normalizadorRef.current = new ApiNormalizer({
+      debug,
+      maxSuggestions,
+      serverTimeout,
+    });
+
+    return () => {
+      // Clean up any pending requests on unmount
+      if (inputTimerRef.current) {
+        clearTimeout(inputTimerRef.current);
+      }
+      if (normalizadorRef.current) {
+        normalizadorRef.current.abort();
+      }
+    };
+  }, [debug, maxSuggestions, serverTimeout]);
+
+  const convertToDireccionSuggestion = (
+    d: DireccionType | Calle
+  ): DireccionSuggestion => {
+    if (d.tipo === "CALLE") {
+      // It's a Calle type
+      return {
+        title: d.nombre,
+        subTitle: d.descripcion || "CABA",
+        type: "CALLE",
+        category: "CALLE",
+        suggesterName: "Direcciones",
+        data: {
+          nombre: d.nombre,
+          descripcion: d.descripcion || "",
+          tipo: "CALLE",
+          codigo: d.codigo,
+        },
+      };
+    } else {
+      // It's a DireccionType
+      return {
+        title: d.nombre,
+        subTitle: d.descripcion || "CABA",
+        type: d.tipoDireccion,
+        category: d.tipoDireccion,
+        suggesterName: "Direcciones",
+        data: {
+          nombre: d.nombre,
+          descripcion: d.descripcion || "",
+          tipo: d.tipo,
+          codigo: d.calle.codigo,
+          altura:
+            d.tipoDireccion === "DIRECCION_CALLE_ALTURA" ? d.altura : undefined,
+          calle: {
+            codigo: d.calle.codigo,
+          },
+          coordenadas: d.coordenadas,
+          smp: d.smp,
+        },
+      };
+    }
+  };
+
+  const getSuggestions = useCallback(
+    async (text: string) => {
+      if (debug) {
+        console.log(`getSuggestions('${text}')`);
+      }
+
+      if (!normalizadorRef.current || !text || text.length < 3) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const direcciones = await normalizadorRef.current.normalizar(
+          text,
+          maxSuggestions
+        );
+        const results = direcciones.map(convertToDireccionSuggestion);
+
+        setSuggestions(results);
+
+        // Automatically show suggestions when we have results or when loading
+        setShowSuggestions(true);
+
+        if (results.length === 0) {
+          setError("No se encontraron resultados");
+        }
+      } catch (error) {
+        console.error("Error getting suggestions:", error);
+        setSuggestions([]);
+        setError("Error al buscar direcciones");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [debug, maxSuggestions]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+    setError(null);
+
+    // Clear previous timer
+    if (inputTimerRef.current) {
+      clearTimeout(inputTimerRef.current);
+    }
+
+    // Abort any ongoing request
+    if (normalizadorRef.current) {
+      normalizadorRef.current.abort();
+    }
+
+    // Set a new timer to delay the search
+    if (value.length >= 3) {
+      // Show suggestions container immediately when typing (even before results arrive)
+      setShowSuggestions(true);
+      setIsLoading(true);
+
+      inputTimerRef.current = setTimeout(() => {
+        getSuggestions(value);
+      }, 300);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion: DireccionSuggestion) => {
+    // Add to selected addresses if not already there
+    if (
+      !selectedAddresses.some(
+        (addr) => addr.data.nombre === suggestion.data.nombre
+      )
+    ) {
+      const newSelectedAddresses = [...selectedAddresses, suggestion];
+      setSelectedAddresses(newSelectedAddresses);
+
+      // Call the callback if provided
+      if (onAddressSelect) {
+        onAddressSelect(suggestion);
+      }
+
+      if (onAddressesChange) {
+        onAddressesChange(newSelectedAddresses);
+      }
+    }
+
+    // Clear input and suggestions
+    setSearchText("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleRemoveAddress = (index: number) => {
+    const newSelectedAddresses = [...selectedAddresses];
+    newSelectedAddresses.splice(index, 1);
+    setSelectedAddresses(newSelectedAddresses);
+
+    if (onAddressesChange) {
+      onAddressesChange(newSelectedAddresses);
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (searchText.length >= 3) {
+      setShowSuggestions(true);
+    }
+  };
+
+  const handleInputBlur = () => {
+    // Delay hiding suggestions to allow clicking on them
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200);
+  };
+
+  return (
+    <div className={`address-search-container ${className}`}>
+      <div className="relative">
+        <input
+          type="text"
+          value={searchText}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          placeholder={placeholder}
+          className={`w-full p-2 border rounded ${inputClassName}`}
+        />
+        {isLoading && (
+          <div
+            className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${loadingClassName}`}
+          >
+            <LoaderIcon className="h-4 w-4 text-gray-500 animate-spin" />
+          </div>
+        )}
+
+        {(showSuggestions || isLoading) && (
+          <ul
+            className={`absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-auto ${suggestionsContainerClassName}`}
+          >
+            {isLoading ? (
+              <li
+                className={`p-4 text-center text-gray-500 ${suggestionsClassName}`}
+              >
+                <LoaderIcon className="h-5 w-5 mx-auto animate-spin mb-2" />
+                <span>Buscando direcciones...</span>
+              </li>
+            ) : suggestions.length > 0 ? (
+              suggestions.map((suggestion, index) => (
+                <li
+                  key={`${suggestion.data.nombre}-${index}`}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 ${suggestionItemClassName}`}
+                  onClick={() => handleSelectSuggestion(suggestion)}
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="mt-1">
+                      <NavigationIcon
+                        className={`h-4 w-4 text-blue-500 ${iconClassName}`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-medium ${titleClassName}`}>
+                        {suggestion.title}
+                      </div>
+                      <div
+                        className={`text-sm text-gray-500 ${subtitleClassName}`}
+                      >
+                        {suggestion.subTitle}
+                      </div>
+                      {suggestion.data.coordenadas && (
+                        <div
+                          className={`text-xs text-gray-400 ${coordsClassName}`}
+                        >
+                          Coord: {suggestion.data.coordenadas.x.toFixed(6)},{" "}
+                          {suggestion.data.coordenadas.y.toFixed(6)}
+                        </div>
+                      )}
+                      {suggestion.data.smp && (
+                        <div
+                          className={`text-xs text-gray-400 ${smpClassName}`}
+                        >
+                          SMP: {suggestion.data.smp}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))
+            ) : searchText.length >= 3 ? (
+              <li className={`p-4 text-center text-red-500 ${errorClassName}`}>
+                {error || "No se encontraron resultados"}
+              </li>
+            ) : (
+              <li
+                className={`p-4 text-center text-gray-500 ${suggestionsClassName}`}
+              >
+                Ingrese al menos 3 caracteres para buscar
+              </li>
+            )}
+          </ul>
+        )}
+
+        {error && !isLoading && !showSuggestions && (
+          <div className={`mt-1 text-sm text-red-500 ${errorClassName}`}>
+            {error}
+          </div>
+        )}
+      </div>
+
+      {selectedAddresses.length > 0 && (
+        <div
+          className={`mt-4 ${selectedAddressesClassName} ${selectedAddressesContainerClassName}`}
+        >
+          <h3 className="text-sm font-medium mb-2">
+            Direcciones seleccionadas:
+          </h3>
+          <ul className="space-y-2">
+            {selectedAddresses.map((address, index) => (
+              <li
+                key={`selected-${index}`}
+                className={`flex justify-between items-center p-2 bg-gray-50 rounded ${selectedAddressItemClassName}`}
+              >
+                <div className="flex items-start gap-2">
+                  <div className="mt-1">
+                    <NavigationIcon
+                      className={`h-4 w-4 text-blue-500 ${iconClassName}`}
+                    />
+                  </div>
+                  <div>
+                    <div className={`font-medium ${titleClassName}`}>
+                      {address.title}
+                    </div>
+                    <div
+                      className={`text-sm text-gray-500 ${subtitleClassName}`}
+                    >
+                      {address.subTitle}
+                    </div>
+                    {address.data.coordenadas && (
+                      <div
+                        className={`text-xs text-gray-400 ${coordsClassName}`}
+                      >
+                        Coord: {address.data.coordenadas.x.toFixed(6)},{" "}
+                        {address.data.coordenadas.y.toFixed(6)}
+                      </div>
+                    )}
+                    {address.data.smp && (
+                      <div className={`text-xs text-gray-400 ${smpClassName}`}>
+                        SMP: {address.data.smp}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveAddress(index)}
+                  className={`text-red-500 hover:text-red-700 ${removeButtonClassName}`}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};

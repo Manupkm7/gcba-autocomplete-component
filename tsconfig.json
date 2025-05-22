@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/pages/*": ["src/pages/*"],
+      "@/components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/locales/*": ["src/locales/*"],
+      "@/state/*": ["src/state/*"],
+      "@/assets/*": ["src/assets/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/types/*": ["src/types/*"],
+      "@/shared/*": ["src/components/shared/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/atoms/*": ["src/atoms/*"],
+      "@/store/*": ["src/store/*"]
+    }
+  },
+  "include": ["src", ".eslintrc.cjs"],
+  "extends": ["./tsconfig.node.json"],
+  "plugins": [
+    {
+      "name": "typescript-styled-plugin"
+    }
+  ],
+  "moduleAliases": {
+    "foo": "dist"
+  }
+}
