@@ -1,10 +1,11 @@
 {
   "name": "autocomplete-gcba-component",
   "private": false,
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "Componente React de autocompletado de direcciones para GCBA",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
