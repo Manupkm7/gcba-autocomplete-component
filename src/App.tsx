@@ -1,25 +1,22 @@
-import { useState } from "react";
 import { AddressSearch } from "@/components/search";
 
 import type { DireccionSuggestion } from "@/types/direction";
 
-type HomeProps = {
+type SearchProps = {
   inputClassName?: string;
   suggestionsContainerClassName?: string;
   suggestionItemClassName?: string;
   selectedAddressesContainerClassName?: string;
+  setSelectedAddresses: (addresses: DireccionSuggestion[]) => void;
 };
 
-export const Home = ({
+export const Search = ({
   inputClassName,
   suggestionsContainerClassName,
   suggestionItemClassName,
   selectedAddressesContainerClassName,
-}: HomeProps) => {
-  const [selectedAddresses, setSelectedAddresses] = useState<
-    DireccionSuggestion[]
-  >([]);
-
+  setSelectedAddresses,
+}: SearchProps) => {
   const handleAddressesChange = (addresses: DireccionSuggestion[]) => {
     setSelectedAddresses(addresses);
   };
@@ -39,17 +36,6 @@ export const Home = ({
           selectedAddressesContainerClassName
         }
       />
-
-      {selectedAddresses.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-4">
-            Direcciones guardadas ({selectedAddresses.length})
-          </h2>
-          <pre className="bg-gray-100 p-4 rounded-md overflow-auto text-xs">
-            {JSON.stringify(selectedAddresses, null, 2)}
-          </pre>
-        </div>
-      )}
     </main>
   );
 };
