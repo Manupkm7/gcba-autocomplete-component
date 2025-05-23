@@ -1,10 +1,31 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "target": "ESNext",
+    "module": "ESNext",
     "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist/types",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/locales/*": ["src/locales/*"],
+      "@/state/*": ["src/state/*"],
+      "@/assets/*": ["src/assets/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/types/*": ["src/types/*"],
+      "@/shared/*": ["src/components/shared/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/atoms/*": ["src/atoms/*"],
+      "@/store/*": ["src/store/*"]
+    }
   },
   "include": ["src"]
 }

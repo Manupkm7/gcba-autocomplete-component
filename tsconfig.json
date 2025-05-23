@@ -1,20 +1,24 @@
 {
   "compilerOptions": {
-    "useDefineForClassFields": true,
+    "target": "ESNext",
+    "module": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": false,
+    "moduleResolution": "node",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist/esm/types",
+    "jsx": "react-jsx",
+    "outDir": "dist/esm",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "Bundler",
+    "useDefineForClassFields": true,
+    "allowJs": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@/pages/*": ["src/pages/*"],
@@ -31,7 +35,7 @@
       "@/store/*": ["src/store/*"]
     }
   },
-  "include": ["src", ".eslintrc.cjs"],
+  "include": ["src/**/*", ".eslintrc.cjs"],
   "extends": ["./tsconfig.node.json"],
   "plugins": [
     {
