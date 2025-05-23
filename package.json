@@ -1,18 +1,19 @@
 {
   "name": "autocomplete-gcba-component",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
+  "description": "Componente React de autocompletado de direcciones para GCBA",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
-  },
-  "dependencies": {
-    "axios": "^1.6.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
   },
   "keywords": [
     "normalizador",
@@ -22,8 +23,25 @@
     "argentina",
     "typescript",
     "usig",
-    "gcba"
+    "gcba",
+    "react",
+    "autocomplete"
   ],
+  "author": "Manuel Espinoza",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Manupkm7/gcba-autocomplete-component.git"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@rollup/plugin-commonjs": "^25.0.7",
