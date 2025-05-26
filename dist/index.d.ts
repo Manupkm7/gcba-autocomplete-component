@@ -1,4 +1,4 @@
-import React from 'react';
+import React$1 from 'react';
 
 type TipoDirection = "DIRECCION_CALLE_ALTURA" | "DIRECCION_CALLE_Y_CALLE" | "INVALIDO";
 interface Coordinates {
@@ -100,6 +100,7 @@ interface AddressSearchProps {
     coordsClassName?: string;
     smpClassName?: string;
     serverTimeout?: number;
+    isDebug?: boolean;
 }
 declare const AddressSearch: React.FC<AddressSearchProps>;
 
@@ -117,7 +118,7 @@ interface UseAddressSearchReturn {
     error: string | null;
     showSuggestions: boolean;
     setShowSuggestions: (show: boolean) => void;
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleInputChange: (e: React$1.ChangeEvent<HTMLInputElement>) => void;
     handleSelectSuggestion: (suggestion: DireccionSuggestion) => void;
     handleRemoveAddress: (index: number) => void;
     handleInputFocus: () => void;

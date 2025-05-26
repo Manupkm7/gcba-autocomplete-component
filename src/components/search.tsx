@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ApiNormalizer } from "@/lib/api-normalizer";
 import type { DireccionSuggestion, DireccionType, Calle } from "../types/direction.types";

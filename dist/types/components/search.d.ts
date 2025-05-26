@@ -1,4 +1,3 @@
-import type React from "react";
 import type { DireccionSuggestion } from "../types/direction.types";
 interface AddressSearchProps {
     maxSuggestions?: number;
@@ -24,6 +23,7 @@ interface AddressSearchProps {
     coordsClassName?: string;
     smpClassName?: string;
     serverTimeout?: number;
+    isDebug?: boolean;
 }
 export declare const AddressSearch: React.FC<AddressSearchProps>;
 export {};

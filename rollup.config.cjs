@@ -6,6 +6,7 @@ const terser = require("@rollup/plugin-terser").default;
 const peerDepsExternal = require("rollup-plugin-peer-deps-external");
 const dts = require("rollup-plugin-dts").default;
 const alias = require("@rollup/plugin-alias");
+const postcss = require("rollup-plugin-postcss");
 
 const packageJson = require("./package.json");
 
@@ -38,6 +39,10 @@ module.exports = [
       commonjs(),
       typescript({ tsconfig: "./tsconfig.build.json" }),
       terser(),
+      postcss({
+        extract: "style.css",
+        plugins: [require("@tailwindcss/postcss")(), require("autoprefixer")],
+      }),
     ],
   },
   {

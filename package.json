@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-gcba-component",
   "private": false,
-  "version": "2.2.5",
+  "version": "2.2.6",
   "type": "module",
   "description": "Componente React de autocompletado de direcciones para GCBA",
   "main": "dist/index.cjs.js",
@@ -68,6 +68,7 @@
     "rollup": "^4.6.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
     "tailwindcss": "^4.1.7",
     "tsc-alias": "^1.8.16",
     "typescript": "~5.8.3",
