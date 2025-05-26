@@ -1,5 +1,5 @@
 import type React from "react";
-import type { DireccionSuggestion } from "@/types/direction";
+import type { DireccionSuggestion } from "../types/direction.types";
 interface AddressSearchProps {
     maxSuggestions?: number;
     onAddressSelect: (address: DireccionSuggestion) => void;

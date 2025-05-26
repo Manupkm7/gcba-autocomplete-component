@@ -1,12 +1,12 @@
 {
   "name": "autocomplete-gcba-component",
   "private": false,
-  "version": "2.2.2",
+  "version": "2.2.3",
   "type": "module",
   "description": "Componente React de autocompletado de direcciones para GCBA",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],
@@ -14,9 +14,8 @@
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:types": "tsc -p tsconfig.build.json",
     "build:rollup": "rollup -c",
-    "build": "npm run build:types && npm run build:rollup"
+    "build": "npm run build:rollup"
   },
   "keywords": [
     "normalizador",
@@ -65,6 +64,7 @@
     "rollup": "^4.6.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
+    "tsc-alias": "^1.8.16",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5",

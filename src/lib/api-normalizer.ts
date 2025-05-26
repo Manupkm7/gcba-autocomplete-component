@@ -4,7 +4,7 @@ import type {
   DireccionCalleAltura,
   DireccionCalleYCalle,
   Coordinates,
-} from "@/types/direction";
+} from "../types/direction.types";
 import axios, { type AxiosRequestConfig } from "axios";
 
 

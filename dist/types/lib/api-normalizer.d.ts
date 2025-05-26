@@ -1,4 +1,4 @@
-import type { Calle, DireccionType, Coordinates } from "@/types/direction";
+import type { Calle, DireccionType, Coordinates } from "../types/direction.types";
 export declare class ApiNormalizer {
     private debug;
     private maxSuggestions;

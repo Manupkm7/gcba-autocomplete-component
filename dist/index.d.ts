@@ -1,5 +1,80 @@
 import React from 'react';
-import { DireccionSuggestion } from '@/types/direction';
+
+type TipoDirection = "DIRECCION_CALLE_ALTURA" | "DIRECCION_CALLE_Y_CALLE" | "INVALIDO";
+interface Coordinates {
+    x: number;
+    y: number;
+    srid?: number;
+}
+interface Alt {
+    inicio: number;
+    fin: number;
+}
+interface Calle {
+    codigo: string;
+    nombre: string;
+    partido?: string;
+    localidad?: string;
+    descripcion?: string;
+    tipo: "CALLE";
+    alturas: Alt[];
+}
+interface DireccionBase {
+    calle: Calle;
+    calleCruce?: Calle;
+    altura?: number;
+    tipoDireccion: TipoDirection;
+    smp?: string;
+    coordenadas?: Coordinates;
+    tipo: "DIRECCION";
+    nombre: string;
+    descripcion?: string;
+}
+interface DireccionCalleAltura extends DireccionBase {
+    tipoDireccion: "DIRECCION_CALLE_ALTURA";
+    altura: number;
+}
+interface DireccionCalleYCalle extends DireccionBase {
+    tipoDireccion: "DIRECCION_CALLE_Y_CALLE";
+    calleCruce: Calle;
+}
+type DireccionType = DireccionCalleAltura | DireccionCalleYCalle;
+interface DireccionInput {
+    cod_calle?: string;
+    cod_calle2?: string;
+    cod_calle_cruce?: string;
+    nombre_calle?: string;
+    nombre?: string;
+    calle2?: string;
+    nombre_calle_cruce?: string;
+    nombre_partido?: string;
+    nombre_localidad?: string;
+    altura?: number;
+    tipo?: TipoDirection;
+    smp?: string;
+    coordenadas?: string | Coordinates;
+    calle?: Calle;
+    calle_cruce?: Calle;
+}
+interface DireccionSuggestion {
+    title: string;
+    subTitle: string;
+    type: string;
+    category: string;
+    suggesterName: string;
+    data: {
+        nombre: string;
+        descripcion: string;
+        tipo: string;
+        codigo?: string;
+        altura?: string | number;
+        calle?: {
+            codigo: string;
+        };
+        coordenadas?: Coordinates;
+        smp?: string;
+    };
+}
 
 interface AddressSearchProps {
     maxSuggestions?: number;
@@ -51,3 +126,4 @@ interface UseAddressSearchReturn {
 declare function useAddressSearch(options?: AddressSearchOptions): UseAddressSearchReturn;
 
 export { AddressSearch, useAddressSearch };
+export type { Alt, Calle, Coordinates, DireccionBase, DireccionCalleAltura, DireccionCalleYCalle, DireccionInput, DireccionSuggestion, DireccionType, TipoDirection };

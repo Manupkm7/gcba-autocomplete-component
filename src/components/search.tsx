@@ -1,8 +1,7 @@
 import type React from "react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ApiNormalizer } from "@/lib/api-normalizer";
-import type { DireccionSuggestion } from "@/types/direction";
-import type { DireccionType, Calle } from "@/types/direction";
+import type { DireccionSuggestion, DireccionType, Calle } from "../types/direction.types";
 import { LoaderIcon } from "@/assets/Loader";
 import NavigationIcon from "@/assets/Navigation";
 

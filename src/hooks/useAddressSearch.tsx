@@ -5,7 +5,7 @@ import type {
   DireccionSuggestion,
   DireccionType,
   Calle,
-} from "@/types/direction";
+} from "../types/direction.types";
 
 interface AddressSearchOptions {
   maxSuggestions?: number;
