@@ -278,11 +278,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                       <div className={`font-medium ${titleClassName}`}>
                         {suggestion.title}
                       </div>
-                      <div
-                        className={`text-sm text-gray-500 ${subtitleClassName}`}
-                      >
-                        {suggestion.subTitle}
-                      </div>
                       {suggestion.data.coordenadas && (
                         <div
                           className={`text-xs text-gray-400 ${coordsClassName}`}

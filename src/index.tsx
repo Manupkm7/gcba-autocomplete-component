@@ -12,3 +12,4 @@ export {
     type DireccionSuggestion,
     type DireccionInput,
 } from "./types";
+import './index.css';
