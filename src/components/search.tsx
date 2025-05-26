@@ -8,8 +8,9 @@ import NavigationIcon from "@/assets/Navigation";
 
 interface AddressSearchProps {
   maxSuggestions?: number;
-  onAddressSelect?: (address: DireccionSuggestion) => void;
-  onAddressesChange?: (addresses: DireccionSuggestion[]) => void;
+  onAddressSelect: (address: DireccionSuggestion) => void;
+  onAddressesRemove: (index: number) => void;
+  selectedAddresses: DireccionSuggestion[];
   placeholder?: string;
   debug?: boolean;
   className?: string;
@@ -34,11 +35,12 @@ interface AddressSearchProps {
 export const AddressSearch: React.FC<AddressSearchProps> = ({
   maxSuggestions = 10,
   onAddressSelect,
-  onAddressesChange,
+  onAddressesRemove,
   placeholder = "Buscar dirección o coordenadas...",
   debug = false,
   className = "",
   inputClassName = "",
+  selectedAddresses = [],
   suggestionsClassName = "",
   suggestionItemClassName = "",
   selectedAddressesClassName = "",
@@ -57,9 +59,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
 }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [suggestions, setSuggestions] = useState<DireccionSuggestion[]>([]);
-  const [selectedAddresses, setSelectedAddresses] = useState<
-    DireccionSuggestion[]
-  >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +130,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   const getSuggestions = useCallback(
     async (text: string) => {
       if (debug) {
-        console.log(`getSuggestions('${text}')`);
+        console.debug(`getSuggestions('${text}')`);
       }
 
       if (!normalizadorRef.current || !text || text.length < 3) {
@@ -206,17 +205,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
         (addr) => addr.data.nombre === suggestion.data.nombre
       )
     ) {
-      const newSelectedAddresses = [...selectedAddresses, suggestion];
-      setSelectedAddresses(newSelectedAddresses);
-
-      // Call the callback if provided
-      if (onAddressSelect) {
-        onAddressSelect(suggestion);
-      }
-
-      if (onAddressesChange) {
-        onAddressesChange(newSelectedAddresses);
-      }
+      onAddressSelect(suggestion);
     }
 
     // Clear input and suggestions
@@ -226,13 +215,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   };
 
   const handleRemoveAddress = (index: number) => {
-    const newSelectedAddresses = [...selectedAddresses];
-    newSelectedAddresses.splice(index, 1);
-    setSelectedAddresses(newSelectedAddresses);
-
-    if (onAddressesChange) {
-      onAddressesChange(newSelectedAddresses);
-    }
+    onAddressesRemove(index);
   };
 
   const handleInputFocus = () => {

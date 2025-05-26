@@ -93,7 +93,7 @@ export class ApiNormalizer {
     if (this.lastRequest) {
       this.lastRequest.abort();
       this.lastRequest = null;
-      if (this.debug) console.log("Request aborted");
+      if (this.debug) console.debug("Request aborted");
     }
   }
 
@@ -105,7 +105,7 @@ export class ApiNormalizer {
     maxOptions: number = this.maxSuggestions
   ): Promise<Array<DireccionType | Calle>> {
     if (this.debug) {
-      console.log(`ApiNormalizer.normalizar('${str}', ${maxOptions})`);
+      console.debug(`ApiNormalizer.normalizar('${str}', ${maxOptions})`);
     }
 
     // Abort previous request if exists
@@ -134,7 +134,7 @@ export class ApiNormalizer {
       return results.slice(0, maxOptions);
     } catch (error) {
       if (axios.isCancel(error)) {
-        if (this.debug) console.log("Request was cancelled");
+        if (this.debug) console.debug("Request was cancelled");
       } else {
         console.error("Error normalizing address:", error);
       }
@@ -248,7 +248,7 @@ export class ApiNormalizer {
    */
   private async reverseGeocode(x: number, y: number): Promise<DireccionType[]> {
     if (this.debug) {
-      console.log(`ApiNormalizer.reverseGeocode(${x}, ${y})`);
+      console.debug(`ApiNormalizer.reverseGeocode(${x}, ${y})`);
     }
 
     // Abort previous request if exists
