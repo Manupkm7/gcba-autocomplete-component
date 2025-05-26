@@ -1,3 +1,5 @@
+import "./App.css";
+
 export { AddressSearch } from "./components/search";
 export { useAddressSearch } from "./hooks";
 export {
@@ -12,4 +14,3 @@ export {
     type DireccionSuggestion,
     type DireccionInput,
 } from "./types";
-import './index.css';

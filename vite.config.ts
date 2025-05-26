@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   build: {
     lib: {
-      entry: "src/index.ts",
+      entry: "src/index.tsx",
       name: "AutocompleteGCBAComponent",
       fileName: (format) => `index.${format}.js`,
       formats: ["es", "cjs"],

@@ -29,6 +29,7 @@ interface AddressSearchProps {
   coordsClassName?: string;
   smpClassName?: string;
   serverTimeout?: number;
+  isDebug?: boolean;
 }
 
 export const AddressSearch: React.FC<AddressSearchProps> = ({
@@ -51,10 +52,10 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   errorClassName = "",
   iconClassName = "",
   titleClassName = "",
-  subtitleClassName = "",
   coordsClassName = "",
   smpClassName = "",
   serverTimeout = 5000,
+  isDebug = false,
 }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [suggestions, setSuggestions] = useState<DireccionSuggestion[]>([]);
@@ -231,8 +232,8 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   };
 
   return (
-    <div className={`address-search-container ${className}`}>
-      <div className="relative">
+    <div className={`w-full ${className}`}>
+      <div className="relative max-w-[500px]">
         <input
           type="text"
           value={searchText}
@@ -240,138 +241,141 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
           placeholder={placeholder}
-          className={`w-full p-2 border rounded ${inputClassName}`}
+          className={`w-full h-[24px] p-[8px] border rounded ${inputClassName}`}
         />
         {isLoading && (
           <div
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${loadingClassName}`}
+            className={`absolute right-[0] top-1/2 transform -translate-y-1/2 ${loadingClassName}`}
           >
             <LoaderIcon className="h-4 w-4 text-gray-500 animate-spin" />
           </div>
         )}
 
         {(showSuggestions || isLoading) && (
-          <ul
-            className={`absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-auto ${suggestionsContainerClassName}`}
+          <div
+            className={`absolute z-10 w-full bg-[#FFF] border border-t-0 rounded shadow-lg max-h-[200px] overflow-auto px-[8px] ${suggestionsContainerClassName}`}
           >
             {isLoading ? (
-              <li
-                className={`p-4 text-center text-gray-500 ${suggestionsClassName}`}
+              <div
+                className={`p-[8px] flex items-center justify-center gap-[8px] text-gray-500 ${suggestionsClassName}`}
               >
-                <LoaderIcon className="h-5 w-5 mx-auto animate-spin mb-2" />
+                <LoaderIcon className="h-5 w-2 animate-spin mb-2" />
                 <span>Buscando direcciones...</span>
-              </li>
+              </div>
             ) : suggestions.length > 0 ? (
               suggestions.map((suggestion, index) => (
-                <li
+                <div
                   key={`${suggestion.data.nombre}-${index}`}
-                  className={`p-2 cursor-pointer hover:bg-gray-100 ${suggestionItemClassName}`}
+                  className={`my-[8px] border-b border-[#b8b5b4] last:border-b-0 cursor-pointer hover:bg-[#dfe0e1] transition duration-300 ease-in-out bg-white rounded-[4px] w-[100%] ${suggestionItemClassName}`}
                   onClick={() => handleSelectSuggestion(suggestion)}
                 >
-                  <div className="flex items-start gap-2">
-                    <div className="mt-1">
+                  <div className="flex items-center gap-[8px]">
+                    <div>
                       <NavigationIcon
-                        className={`h-4 w-4 text-blue-500 ${iconClassName}`}
+                        className={`h-4 text-[#0042ff] ${iconClassName}`}
                       />
                     </div>
-                    <div className="flex-1">
-                      <div className={`font-medium ${titleClassName}`}>
-                        {suggestion.title}
-                      </div>
+                    <div className="flex flex-center gap-[8px]">
+                      <span className={`font-medium text-[14px] truncate ${titleClassName}`}>
+                        {suggestion.title}.
+                      </span>
+
                       {suggestion.data.coordenadas && (
-                        <div
-                          className={`text-xs text-gray-400 ${coordsClassName}`}
+                        <span
+                          className={`text-xs text-gray-400 truncate ${coordsClassName}`}
                         >
                           Coord: {suggestion.data.coordenadas.x.toFixed(6)},{" "}
                           {suggestion.data.coordenadas.y.toFixed(6)}
-                        </div>
+                        </span>
                       )}
                       {suggestion.data.smp && (
-                        <div
+                        <span
                           className={`text-xs text-gray-400 ${smpClassName}`}
                         >
                           SMP: {suggestion.data.smp}
-                        </div>
+                        </span>
                       )}
                     </div>
                   </div>
-                </li>
+                </div>
               ))
             ) : searchText.length >= 3 ? (
-              <li className={`p-4 text-center text-red-500 ${errorClassName}`}>
+              <div className={`p-[8px] text-center text-red-500 ${errorClassName}`}>
                 {error || "No se encontraron resultados"}
-              </li>
+              </div>
             ) : (
-              <li
+              <div
                 className={`p-4 text-center text-gray-500 ${suggestionsClassName}`}
               >
                 Ingrese al menos 3 caracteres para buscar
-              </li>
+              </div>
             )}
-          </ul>
+          </div>
         )}
 
         {error && !isLoading && !showSuggestions && (
-          <div className={`mt-1 text-sm text-red-500 ${errorClassName}`}>
+          <div className={`mt-[8px] text-sm text-red-500 ${errorClassName}`}>
             {error}
           </div>
         )}
       </div>
 
-      {selectedAddresses.length > 0 && (
-        <div
-          className={`mt-4 ${selectedAddressesClassName} ${selectedAddressesContainerClassName}`}
-        >
-          <h3 className="text-sm font-medium mb-2">
-            Direcciones seleccionadas:
-          </h3>
-          <ul className="space-y-2">
-            {selectedAddresses.map((address, index) => (
-              <li
-                key={`selected-${index}`}
-                className={`flex justify-between items-center p-2 bg-gray-50 rounded ${selectedAddressItemClassName}`}
+      {isDebug && (
+        <>
+          {
+            selectedAddresses.length > 0 && (
+              <div
+                className={`${selectedAddressesClassName} ${selectedAddressesContainerClassName}`}
               >
-                <div className="flex items-start gap-2">
-                  <div className="mt-1">
-                    <NavigationIcon
-                      className={`h-4 w-4 text-blue-500 ${iconClassName}`}
-                    />
-                  </div>
-                  <div>
-                    <div className={`font-medium ${titleClassName}`}>
-                      {address.title}
-                    </div>
-                    <div
-                      className={`text-sm text-gray-500 ${subtitleClassName}`}
+                <h3 className="text-sm font-medium mb-2">
+                  Direcciones seleccionadas:
+                </h3>
+                <ul className="space-y-2">
+                  {selectedAddresses.map((address, index) => (
+                    <li
+                      key={`selected-${index}`}
+                      className={`flex justify-between items-center p-2 bg-gray-50 rounded ${selectedAddressItemClassName}`}
                     >
-                      {address.subTitle}
-                    </div>
-                    {address.data.coordenadas && (
-                      <div
-                        className={`text-xs text-gray-400 ${coordsClassName}`}
+                      <div className="flex items-center gap-[8px]">
+                        <div className="mt-1">
+                          <NavigationIcon
+                            className={`h-4 w-4 text-[#0042ff] ${iconClassName}`}
+                          />
+                        </div>
+                        <div className="flex flex-center gap-[8px]">
+                          <div className={`font-medium ${titleClassName}`}>
+                            {address.title}.
+                          </div>
+                          {address.data.coordenadas && (
+                            <div
+                              className={`text-xs text-gray-400 ${coordsClassName}`}
+                            >
+                              Coord: {address.data.coordenadas.x.toFixed(6)},{" "}
+                              {address.data.coordenadas.y.toFixed(6)}
+                            </div>
+                          )}
+                          {address.data.smp && (
+                            <div className={`text-xs text-gray-400 ${smpClassName}`}>
+                              SMP: {address.data.smp}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAddress(index)}
+                        className={`text-[#FFF] bg-[#ff0000] rounded-[4px] border-0 h-[24px] w-[24px] cursor-pointer transition duration-300 ease-in-out hover:scale-125 ${removeButtonClassName}`}
                       >
-                        Coord: {address.data.coordenadas.x.toFixed(6)},{" "}
-                        {address.data.coordenadas.y.toFixed(6)}
-                      </div>
-                    )}
-                    {address.data.smp && (
-                      <div className={`text-xs text-gray-400 ${smpClassName}`}>
-                        SMP: {address.data.smp}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAddress(index)}
-                  className={`text-red-500 hover:text-red-700 ${removeButtonClassName}`}
-                >
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </>
+
       )}
     </div>
   );
