@@ -3,8 +3,9 @@ import { DireccionSuggestion } from '@/types/direction';
 
 interface AddressSearchProps {
     maxSuggestions?: number;
-    onAddressSelect?: (address: DireccionSuggestion) => void;
-    onAddressesChange?: (addresses: DireccionSuggestion[]) => void;
+    onAddressSelect: (address: DireccionSuggestion) => void;
+    onAddressesRemove: (index: number) => void;
+    selectedAddresses: DireccionSuggestion[];
     placeholder?: string;
     debug?: boolean;
     className?: string;
