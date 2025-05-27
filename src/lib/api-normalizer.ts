@@ -7,7 +7,6 @@ import type {
 } from "../types/direction.types";
 import axios, { type AxiosRequestConfig } from "axios";
 
-
 // API endpoints
 const USIG_WEBSERVICE_URL = "https://servicios.usig.buenosaires.gob.ar";
 const CATASTRO_WEBSERVICE_URL = "https://epok.buenosaires.gob.ar/catastro";
@@ -23,6 +22,8 @@ interface NormalizadorResponse {
     cod_partido?: string;
     partido?: string;
     cod_localidad?: string;
+    nombre_partido?: string;
+    nombre_localidad?: string;
     localidad?: string;
     coordenadas?: {
       x: string;
@@ -176,9 +177,21 @@ export class ApiNormalizer {
         response.data.direccionesNormalizadas &&
         response.data.direccionesNormalizadas.length > 0
       ) {
-        return this.processDireccionesNormalizadas(
-          response.data.direccionesNormalizadas
+        const direccionesCABA = response.data.direccionesNormalizadas.filter(
+          (dir) => {
+            const cod = dir.cod_partido?.toLowerCase();
+            const nombrePartido = dir.nombre_partido?.toLowerCase();
+            const nombreLocalidad = dir.nombre_localidad?.toLowerCase();
+
+            return (
+              cod === "caba" ||
+              nombrePartido === "caba" ||
+              nombreLocalidad === "caba"
+            );
+          }
         );
+
+        return this.processDireccionesNormalizadas(direccionesCABA);
       }
 
       // Process calles (streets)
