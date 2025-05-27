@@ -34,6 +34,8 @@ export interface DireccionBase {
   tipo: "DIRECCION";
   nombre: string;
   descripcion?: string;
+  barrio?: string;
+  comuna?: string;
 }
 
 export interface DireccionCalleAltura extends DireccionBase {
@@ -83,5 +85,7 @@ export interface DireccionSuggestion {
     };
     coordenadas?: Coordinates;
     smp?: string;
+    barrio?: string;
+    comuna?: string;
   };
 }

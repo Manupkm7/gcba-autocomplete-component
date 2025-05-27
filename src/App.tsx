@@ -8,7 +8,6 @@ export const App = () => {
 
     const handleAddressSelect = (newValue: DireccionSuggestion) => {
         const newAddress = [...address, newValue];
-
         setAddress(newAddress);
     };
 

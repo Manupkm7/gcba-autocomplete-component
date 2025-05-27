@@ -25,6 +25,8 @@ interface NormalizadorResponse {
     nombre_partido?: string;
     nombre_localidad?: string;
     localidad?: string;
+    comuna?: string;
+    barrio?: string;
     coordenadas?: {
       x: string;
       y: string;
@@ -60,6 +62,11 @@ interface ReverseGeocodingResponse {
   partido?: string;
   cod_localidad?: string;
   localidad?: string;
+  nombre_barrio?: string;
+  nombre_comuna?: string;
+  nombre_partido?: string;
+  nombre_localidad?: string;
+  barrio?: string;
   coordenadas?: {
     x: string;
     y: string;
@@ -190,8 +197,33 @@ export class ApiNormalizer {
             );
           }
         );
-
-        return this.processDireccionesNormalizadas(direccionesCABA);
+        const direccionesEnriquecidas = await Promise.all(
+          direccionesCABA.map(async (dir) => {
+            const coordenadas = await this.obtenerCoordenadas(
+              dir.cod_calle ?? "",
+              Number(dir.altura ?? 0)
+            );
+            if (coordenadas) {
+              const { barrio, comuna } = await this.obtenerBarrioYComuna(
+                coordenadas.y,
+                coordenadas.x
+              );
+              return {
+                ...dir,
+                coordenadas: {
+                  x: coordenadas.x.toString(),
+                  y: coordenadas.y.toString(),
+                  srid: 4326,
+                },
+                barrio,
+                comuna,
+              };
+            } else {
+              return dir; // Devolvés la dirección sin coordenadas ni barrio/comuna
+            }
+          })
+        );
+        return this.processDireccionesNormalizadas(direccionesEnriquecidas);
       }
 
       // Process calles (streets)
@@ -202,11 +234,59 @@ export class ApiNormalizer {
       return [];
     } catch (error) {
       if (axios.isCancel(error)) {
-        if (this.debug) console.log("Address search request was cancelled");
+        if (this.debug) console.debug("Address search request was cancelled");
       } else {
         console.error("Error searching addresses:", error);
       }
       return [];
+    }
+  }
+
+  private async obtenerBarrioYComuna(
+    lat: number,
+    lon: number
+  ): Promise<{ barrio?: string; comuna?: string }> {
+    try {
+      const url = `https://ws.usig.buenosaires.gob.ar/datos_utiles/?x=${lon}&y=${lat}`;
+      const response = await axios.get(url);
+      const capas = response.data;
+      const barrio = capas?.barrio;
+      const comuna = capas?.comuna;
+
+      return { barrio, comuna };
+    } catch (error) {
+      console.error("Error al obtener barrio y comuna:", error);
+      return {};
+    }
+  }
+
+  private async obtenerCoordenadas(
+    calle: string,
+    numero: number
+  ): Promise<Coordinates | null> {
+    try {
+      const geocodingUrl = `https://ws.usig.buenosaires.gob.ar/geocoder/2.2/geocoding?cod_calle=${encodeURIComponent(
+        calle
+      )}&altura=${numero}`;
+
+      const geocodingResponse = await axios.get<string>(geocodingUrl);
+      const text = geocodingResponse.data;
+
+      // Elimina los paréntesis del string
+      const jsonString = text.replace(/^\(|\)$/g, "");
+      const data = JSON.parse(jsonString);
+
+      const { x, y } = data;
+
+      const conversionUrl = `https://ws.usig.buenosaires.gob.ar/rest/convertir_coordenadas/?x=${x}&y=${y}&output=lonlat`;
+      const conversionResponse = await axios.get(conversionUrl);
+
+      const { x: lon, y: lat } = conversionResponse.data.resultado;
+
+      return { y: lat, x: lon };
+    } catch (error) {
+      console.error("Error al obtener coordenadas:", error);
+      return null;
     }
   }
 
@@ -328,12 +408,14 @@ export class ApiNormalizer {
           y,
           srid: response.data.coordenadas?.srid || 4326,
         },
+        barrio: response.data.nombre_barrio,
+        comuna: response.data.nombre_comuna,
       };
 
       return [direccion];
     } catch (error) {
       if (axios.isCancel(error)) {
-        if (this.debug) console.log("Reverse geocoding request was cancelled");
+        if (this.debug) console.debug("Reverse geocoding request was cancelled");
       } else {
         console.error("Error in reverse geocoding:", error);
       }
@@ -407,6 +489,8 @@ export class ApiNormalizer {
                 srid: dir.coordenadas.srid,
               }
             : undefined,
+          barrio: dir.barrio,
+          comuna: dir.comuna,
         } as DireccionCalleYCalle;
       } else {
         // It's a street with number
@@ -426,6 +510,8 @@ export class ApiNormalizer {
                 srid: dir.coordenadas.srid,
               }
             : undefined,
+            barrio: dir.barrio,
+            comuna: dir.comuna,
         } as DireccionCalleAltura;
 
         // Get SMP if it's a street with number
@@ -576,7 +662,7 @@ export class ApiNormalizer {
       return response.data.smp;
     } catch (error) {
       if (axios.isCancel(error)) {
-        if (this.debug) console.log("Request was aborted");
+        if (this.debug) console.debug("Request was aborted");
       } else {
         console.error("Error fetching catastro data:", error);
       }

@@ -110,7 +110,7 @@ export function useAddressSearch(
   const fetchSuggestions = useCallback(
     async (text: string) => {
       if (debug) {
-        console.log(`fetchSuggestions('${text}')`);
+        console.debug(`fetchSuggestions('${text}')`);
       }
 
       if (!normalizadorRef.current || !text || text.length < 3) {

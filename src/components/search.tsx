@@ -121,6 +121,8 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
           },
           coordenadas: d.coordenadas,
           smp: d.smp,
+          barrio: d.barrio,
+          comuna: d.comuna,
         },
       };
     }
@@ -252,11 +254,11 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
 
         {(showSuggestions || isLoading) && (
           <div
-            className={`absolute z-10 w-full bg-[#FFF] border border-t-0 rounded shadow-lg max-h-[200px] overflow-auto px-[8px] ${suggestionsContainerClassName}`}
+            className={`absolute z-10 w-full bg-[#FFFFFF] border border-t-0 rounded shadow-lg max-h-[200px] overflow-auto px-[8px] ${suggestionsContainerClassName}`}
           >
             {isLoading ? (
               <div
-                className={`p-[8px] flex items-center justify-center gap-[8px] text-gray-500 ${suggestionsClassName}`}
+                className={`p-[8px] flex items-center justify-center gap-[8px] text-gray-500  ${suggestionsClassName}`}
               >
                 <LoaderIcon className="h-5 w-2 animate-spin mb-2" />
                 <span>Buscando direcciones...</span>
