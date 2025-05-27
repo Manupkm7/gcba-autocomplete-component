@@ -17,6 +17,7 @@ export interface Alt {
 export interface Calle {
   codigo: string;
   nombre: string;
+  nombre_calle?: string;
   partido?: string;
   localidad?: string;
   descripcion?: string;
@@ -27,7 +28,9 @@ export interface Calle {
 export interface DireccionBase {
   calle: Calle;
   calleCruce?: Calle;
-  altura?: number;
+  altura?: number | string;
+  cod_calle?: string;
+  cod_calle2?: string;
   tipoDireccion: TipoDirection;
   smp?: string;
   coordenadas?: Coordinates;
@@ -60,7 +63,7 @@ export interface DireccionInput {
   nombre_calle_cruce?: string;
   nombre_partido?: string;
   nombre_localidad?: string;
-  altura?: number;
+  altura?: number | string;
   tipo?: TipoDirection;
   smp?: string;
   coordenadas?: string | Coordinates;
@@ -79,7 +82,7 @@ export interface DireccionSuggestion {
     descripcion: string;
     tipo: string;
     codigo?: string;
-    altura?: string | number;
+    altura?: number | string;
     calle?: {
       codigo: string;
     };

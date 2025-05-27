@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-gcba-component",
   "private": false,
-  "version": "2.2.9",
+  "version": "2.2.10",
   "type": "module",
   "description": "Componente React de autocompletado de direcciones para GCBA",
   "main": "dist/index.cjs.js",
@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "axios": "^1.6.2",
+    "proj4": "^2.17.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
     "tslib": "^2.8.1"
@@ -56,6 +57,7 @@
     "@tailwindcss/postcss": "^4.1.7",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.10.0",
+    "@types/proj4": "^2.5.6",
     "@types/react": "^18.2.39",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.4.1",

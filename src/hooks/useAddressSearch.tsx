@@ -163,7 +163,7 @@ export function useAddressSearch(
     if (value.length >= 3) {
       inputTimerRef.current = setTimeout(() => {
         fetchSuggestions(value);
-      }, 300);
+      }, 3000);
     } else {
       setSuggestions([]);
     }

@@ -63,7 +63,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   const [error, setError] = useState<string | null>(null);
   const inputTimerRef = useRef<NodeJS.Timeout | null>(null);
   const normalizadorRef = useRef<ApiNormalizer | null>(null);
-
   // Initialize the ApiNormalizer on component mount
   useEffect(() => {
     normalizadorRef.current = new ApiNormalizer({
@@ -147,6 +146,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
           text,
           maxSuggestions
         );
+        console.log(direcciones, "direcciones 5");
         const results = direcciones.map(convertToDireccionSuggestion);
 
         setSuggestions(results);
@@ -285,8 +285,8 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                         <span
                           className={`text-xs text-gray-400 truncate ${coordsClassName}`}
                         >
-                          Coord: {suggestion.data.coordenadas.x.toFixed(6)},{" "}
-                          {suggestion.data.coordenadas.y.toFixed(6)}
+                          Coord: {suggestion.data.coordenadas.x},{" "}
+                          {suggestion.data.coordenadas.y}
                         </span>
                       )}
                       {suggestion.data.smp && (
