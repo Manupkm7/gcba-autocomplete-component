@@ -346,7 +346,12 @@ export class ApiNormalizer {
 
       const { x, y } = parsed;
 
-      return { x, y };
+      const conversionUrl = `https://ws.usig.buenosaires.gob.ar/rest/convertir_coordenadas/?x=${x}&y=${y}&output=lonlat`;
+      const conversionResponse = await axios.get(conversionUrl);
+
+      const { x: lon, y: lat } = conversionResponse.data.resultado;
+
+      return { x: lon, y: lat };
     } catch (error) {
       console.error(
         "Error al obtener las coordenadas de la intersección:",
