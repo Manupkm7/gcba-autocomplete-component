@@ -29,6 +29,7 @@ interface AddressSearchProps {
   smpClassName?: string;
   serverTimeout?: number;
   isDebug?: boolean;
+  containerItemsClass?: string;
 }
 
 export const AddressSearch: React.FC<AddressSearchProps> = ({
@@ -54,6 +55,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   coordsClassName = "",
   smpClassName = "",
   serverTimeout = 5000,
+  containerItemsClass = "",
   isDebug = false,
 }) => {
   const [searchText, setSearchText] = useState<string>("");
@@ -146,7 +148,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
           text,
           maxSuggestions
         );
-        console.log(direcciones, "direcciones 5");
         const results = direcciones.map(convertToDireccionSuggestion);
 
         setSuggestions(results);
@@ -268,7 +269,11 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                 <div
                   key={`${suggestion.data.nombre}-${index}`}
                   className={`my-[8px] border-b border-[#b8b5b4] last:border-b-0 cursor-pointer hover:bg-[#dfe0e1] transition duration-300 ease-in-out bg-white rounded-[4px] w-[100%] ${suggestionItemClassName}`}
-                  onClick={() => handleSelectSuggestion(suggestion)}
+                  onClick={() => {
+                    if (suggestion.data.coordenadas && suggestion.data.coordenadas.x && suggestion.data.coordenadas.y) {
+                      handleSelectSuggestion(suggestion)
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-[8px]">
                     <div>
@@ -281,7 +286,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                         {suggestion.title}.
                       </span>
 
-                      {suggestion.data.coordenadas && (
+                      {suggestion.data.coordenadas && suggestion.data.coordenadas.x && suggestion.data.coordenadas.y && (
                         <span
                           className={`text-xs text-gray-400 truncate ${coordsClassName}`}
                         >
@@ -337,7 +342,7 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
                       key={`selected-${index}`}
                       className={`flex justify-between items-center p-2 bg-gray-50 rounded ${selectedAddressItemClassName}`}
                     >
-                      <div className="flex items-center gap-[8px]">
+                      <div className={`flex items-center gap-[8px] ${containerItemsClass}`}>
                         <div className="mt-1">
                           <NavigationIcon
                             className={`h-4 w-4 text-[#0042ff] ${iconClassName}`}

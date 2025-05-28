@@ -122,15 +122,11 @@ export class ApiNormalizer {
 
     try {
       let results: Array<DireccionType | Calle> = [];
-      console.log(str, "str 125");
       // 1. First search for addresses
       const addresses = await this.searchAddresses(str, maxOptions);
-      console.log(addresses, "addresses 9");
       results = [...results, ...addresses];
-      console.log(results, "results 10");
       // 2. Check if input is coordinates and search if it is
       const coordsMatch = this.parseCoordinates(str);
-      console.log(coordsMatch, "coordsMatch 11");
       if (coordsMatch) {
         const coordResults = await this.reverseGeocode(
           coordsMatch.x,
@@ -179,7 +175,7 @@ export class ApiNormalizer {
           coords.y,
           coords.x
         );
-        console.log(barrioYComuna);
+
         const calleObj1: Calle = {
           codigo: calle1,
           nombre: calle1,
@@ -196,7 +192,10 @@ export class ApiNormalizer {
 
         const direccion: DireccionCalleYCalle = {
           tipo: "DIRECCION",
-          nombre: `${calle1} y ${calle2}`,
+          nombre:
+            coords.x && coords.y
+              ? `${calle1} y ${calle2}`
+              : "La calle no fue encontrada",
           tipoDireccion: "DIRECCION_CALLE_Y_CALLE",
           calle: calleObj1,
           calleCruce: calleObj2,
@@ -224,7 +223,6 @@ export class ApiNormalizer {
       };
 
       const response = await axios.get<NormalizadorResponse>(url, config);
-      console.log(response.data, "response 65162");
       if (response.data.error) {
         if (this.debug) console.error("API error:", response.data.error);
         return [];
@@ -234,7 +232,6 @@ export class ApiNormalizer {
         response.data.direccionesNormalizadas &&
         response.data.direccionesNormalizadas.length > 0
       ) {
-        console.log(response.data.direccionesNormalizadas, "direcciones");
         const direccionesCABA = response.data.direccionesNormalizadas.filter(
           (dir) => {
             const cod = dir.cod_partido?.toLowerCase();
@@ -248,37 +245,33 @@ export class ApiNormalizer {
             );
           }
         );
-        console.log(direccionesCABA, "direccionesCABA");
         const direccionesEnriquecidas = await Promise.all(
           direccionesCABA.map(async (dir) => {
-            console.log(dir, "dir");
             const coordenadas = await this.obtenerCoordenadas(
-              dir.cod_calle ?? "",
+              dir.nombre_calle ?? "",
               Number(dir.altura ?? 0)
             );
-            console.log(coordenadas, "coordenadas");
             if (coordenadas) {
               const { barrio, comuna } = await this.obtenerBarrioYComuna(
                 coordenadas.y,
                 coordenadas.x
               );
-              console.log(barrio, comuna, "barrio y comuna");
               const calle: Calle = {
                 codigo: dir.cod_calle ?? "",
                 nombre: dir.nombre_calle ?? "",
                 tipo: "CALLE",
                 alturas: [],
               };
-              console.log(calle, "calle");
+
               const coordenadasStr = {
                 x: coordenadas.x,
                 y: coordenadas.y,
                 srid: coordenadas.srid ?? 4326,
               };
-              console.log(coordenadasStr, "coordenadasStr");
+
               const direccion: DireccionCalleAltura = {
                 tipo: "DIRECCION",
-                nombre: dir.nombre_calle ?? "",
+                nombre: calle.nombre!,
                 tipoDireccion: "DIRECCION_CALLE_ALTURA",
                 calle,
                 altura: Number(dir.altura ?? 0),
@@ -287,14 +280,13 @@ export class ApiNormalizer {
                 comuna,
                 cod_calle: dir.cod_calle ?? "",
               };
-              console.log(direccion, "direccion 456415615");
+
               return direccion;
             }
 
             return dir; // fallback por si no hay coordenadas
           })
         );
-        console.log(direccionesEnriquecidas, "direccionesEnriquecidas");
         return this.processDireccionesNormalizadas(direccionesEnriquecidas);
       }
 
@@ -318,13 +310,8 @@ export class ApiNormalizer {
     lon: number
   ): Promise<{ barrio?: string; comuna?: string }> {
     try {
-      const url = `https://ws.usig.buenosaires.gob.ar/datos_utiles/?x=${lon}&y=${lat}&lat=${lat}&lon=${lon}`;
-      const response = await axios.get(url, {
-        headers: {
-          Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+      const url = `https://ws.usig.buenosaires.gob.ar/datos_utiles/?x=${lon}&y=${lat}`;
+      const response = await axios.get(url);
       const capas = response.data;
       const barrio = capas?.barrio;
       const comuna = capas?.comuna;
@@ -351,12 +338,7 @@ export class ApiNormalizer {
         normalizadaCalle2.toLocaleUpperCase()
       )}`;
 
-      const response = await axios.get(url, {
-        headers: {
-          Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+      const response = await axios.get(url);
       const rawText: string = response.data;
 
       const jsonString = rawText.replace(/^\(|\)$/g, "");
@@ -383,25 +365,15 @@ export class ApiNormalizer {
         calle
       )}&altura=${numero}`;
 
-      const geocodingResponse = await axios.get<string>(geocodingUrl, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+      const geocodingResponse = await axios.get<string>(geocodingUrl);
       const text = geocodingResponse.data;
-
       // Elimina los paréntesis del string
       const jsonString = text.replace(/^\(|\)$/g, "");
       const data = JSON.parse(jsonString);
-
       const { x, y } = data;
 
       const conversionUrl = `https://ws.usig.buenosaires.gob.ar/rest/convertir_coordenadas/?x=${x}&y=${y}&output=lonlat`;
-      const conversionResponse = await axios.get(conversionUrl, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
+      const conversionResponse = await axios.get(conversionUrl);
 
       const { x: lon, y: lat } = conversionResponse.data.resultado;
 
@@ -478,7 +450,6 @@ export class ApiNormalizer {
       const config: AxiosRequestConfig = {
         headers: {
           Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
         },
         signal: this.lastRequest.signal,
         timeout: this.serverTimeout,
@@ -556,11 +527,10 @@ export class ApiNormalizer {
     direcciones: NormalizadorResponse["direccionesNormalizadas"]
   ): Promise<DireccionType[]> {
     if (!direcciones) return Promise.resolve([]);
-    console.log(direcciones, "direcciones 599");
+
     const promises = direcciones.map(async (dir) => {
       // Skip invalid addresses
       if (!dir.nombre || !dir.cod_calle) return null;
-      console.log(dir, "dir 631");
       // Create a base calle object
       const calle: Calle = {
         codigo: dir.cod_calle,
@@ -578,9 +548,6 @@ export class ApiNormalizer {
       // Determine if it's a street intersection or street with number
       const isIntersection = dir.nombre.includes(" y ");
       let direccion: DireccionType;
-      console.log(dir, "dir");
-      console.log(isIntersection, "isIntersection");
-      console.log(dir.nombre, "direccion  75");
       if (isIntersection) {
         // It's a street intersection
         const calleNames = dir.nombre.split(" y ").map((c) => c.trim());
@@ -606,8 +573,10 @@ export class ApiNormalizer {
           calleCruce,
           tipoDireccion: "DIRECCION_CALLE_Y_CALLE",
           tipo: "DIRECCION",
-          nombre: dir.direccion,
-          descripcion: dir.direccion,
+          nombre: dir.nombre,
+          descripcion: `Coordenada (${dir.coordenadas?.x.toFixed(
+            6
+          )}, ${dir.coordenadas?.y.toFixed(6)})`,
           coordenadas: dir.coordenadas
             ? {
                 x: dir.coordenadas.x,
@@ -622,13 +591,12 @@ export class ApiNormalizer {
         } as DireccionCalleYCalle;
       } else {
         // It's a street with number
-
         direccion = {
           calle,
           altura: Number(dir.altura),
           tipoDireccion: "DIRECCION_CALLE_ALTURA",
           tipo: "DIRECCION",
-          nombre: dir.direccion,
+          nombre: `${dir.nombre} ${dir.altura}`,
           descripcion: dir.direccion,
           coordenadas: dir.coordenadas
             ? {
@@ -647,7 +615,7 @@ export class ApiNormalizer {
         if (Number(dir.altura) > 0) {
           try {
             const smp = await this.getSMP({
-              nombre: dir.nombre || "",
+              nombre: dir.nombre_calle || "",
               descripcion: dir.nombre || "",
               tipo: "DIRECCION",
               codigo: dir.cod_calle,
@@ -656,21 +624,18 @@ export class ApiNormalizer {
                 codigo: dir.cod_calle,
               },
             });
-            if (smp) {
-              direccion.smp = smp;
-            }
+            direccion.smp = smp ?? "";
+
+            direccion.altura = Number(dir.altura);
+            direccion.descripcion = dir.nombre;
           } catch (error) {
             if (this.debug) console.error("Error getting SMP:", error);
           }
         }
       }
-
-      console.log(direccion, "direccion");
       return direccion;
     });
-    console.log(promises, "promises");
     return Promise.all(promises).then((results) => {
-      console.log(results, "results");
       return results.filter(Boolean) as DireccionType[];
     });
   }
@@ -718,7 +683,6 @@ export class ApiNormalizer {
       const config: AxiosRequestConfig = {
         headers: {
           Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
         },
         signal: this.lastRequest.signal,
         timeout: this.serverTimeout,
@@ -784,7 +748,6 @@ export class ApiNormalizer {
       const config: AxiosRequestConfig = {
         headers: {
           Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
         },
         signal: this.lastRequest.signal,
         timeout: this.serverTimeout,
