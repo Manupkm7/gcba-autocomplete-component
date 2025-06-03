@@ -14,6 +14,9 @@ const CATASTRO_WEBSERVICE_URL = "https://epok.buenosaires.gob.ar/catastro";
 // Response types
 interface NormalizadorResponse {
   direccionesNormalizadas?: Array<{
+    altura_par: string | undefined;
+    altura_impar: string | undefined;
+    calle_alturas: { inicio: number; fin: number }[] | undefined;
     direccion?: string;
     tipo?: string;
     nombre?: string;
@@ -65,6 +68,12 @@ interface ReverseGeocodingResponse {
   nombre_barrio?: string;
   nombre_comuna?: string;
   nombre_partido?: string;
+  calle_alturas?: {
+    inicio: number;
+    fin: number;
+  }[];
+  altura_par?: string;
+  altura_impar?: string;
   nombre_localidad?: string;
   barrio?: string;
   coordenadas?: {
@@ -208,8 +217,12 @@ export class ApiNormalizer {
                 coordenadas.y,
                 coordenadas.x
               );
+              console.log(coordenadas);
               return {
                 ...dir,
+                altura_par: coordenadas.altura_par,
+                altura_impar: coordenadas.altura_impar,
+                calle_alturas: coordenadas.calle_alturas,
                 coordenadas: {
                   x: coordenadas.x.toString(),
                   y: coordenadas.y.toString(),
@@ -277,13 +290,18 @@ export class ApiNormalizer {
       const data = JSON.parse(jsonString);
 
       const { x, y } = data;
-
+      const getAltura = `https://ws.usig.buenosaires.gob.ar/geocoder/2.2/reversegeocoding?x=${x}&y=${y}`;
       const conversionUrl = `https://ws.usig.buenosaires.gob.ar/rest/convertir_coordenadas/?x=${x}&y=${y}&output=lonlat`;
+
       const conversionResponse = await axios.get(conversionUrl);
+      const alturaResponse = await axios.get(getAltura);
+      const alturaJsonString = alturaResponse.data.replace(/^\(|\)$/g, "");
+
+      const { calle_alturas, altura_impar, altura_par } = alturaJsonString;
 
       const { x: lon, y: lat } = conversionResponse.data.resultado;
 
-      return { y: lat, x: lon };
+      return { y: lat, x: lon, altura_par, altura_impar, calle_alturas };
     } catch (error) {
       console.error("Error al obtener coordenadas:", error);
       return null;
@@ -415,7 +433,8 @@ export class ApiNormalizer {
       return [direccion];
     } catch (error) {
       if (axios.isCancel(error)) {
-        if (this.debug) console.debug("Reverse geocoding request was cancelled");
+        if (this.debug)
+          console.debug("Reverse geocoding request was cancelled");
       } else {
         console.error("Error in reverse geocoding:", error);
       }
@@ -491,6 +510,9 @@ export class ApiNormalizer {
             : undefined,
           barrio: dir.barrio,
           comuna: dir.comuna,
+          altura_par: dir.altura_par,
+          altura_impar: dir.altura_impar,
+          calle_alturas: dir.calle_alturas,
         } as DireccionCalleYCalle;
       } else {
         // It's a street with number
@@ -510,8 +532,8 @@ export class ApiNormalizer {
                 srid: dir.coordenadas.srid,
               }
             : undefined,
-            barrio: dir.barrio,
-            comuna: dir.comuna,
+          barrio: dir.barrio,
+          comuna: dir.comuna,
         } as DireccionCalleAltura;
 
         // Get SMP if it's a street with number

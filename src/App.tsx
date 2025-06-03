@@ -7,6 +7,7 @@ export const App = () => {
     const [address, setAddress] = useState<DireccionSuggestion[]>([]);
 
     const handleAddressSelect = (newValue: DireccionSuggestion) => {
+        console.log(newValue);
         const newAddress = [...address, newValue];
         setAddress(newAddress);
     };
@@ -23,7 +24,7 @@ export const App = () => {
                 <div className="relative">
                     <div className="flex gap-2">
                         <div className="relative flex-grow">
-                            <AddressSearch onAddressSelect={handleAddressSelect} onAddressesRemove={handleAddressesRemove} selectedAddresses={address} />
+                            <AddressSearch onAddressSelect={handleAddressSelect} debug onAddressesRemove={handleAddressesRemove} selectedAddresses={address} />
                         </div>
                     </div>
                 </div>
