@@ -210,7 +210,11 @@ export class ApiNormalizer {
           direccionesCABA.map(async (dir) => {
             const coordenadas = await this.obtenerCoordenadas(
               dir.cod_calle ?? "",
-              Number(dir.altura ?? 0)
+              Number(dir.altura ?? 0),
+              {
+                x: Number.parseFloat(dir.coordenadas?.x ?? "0"),
+                y: Number.parseFloat(dir.coordenadas?.y ?? "0"),
+              }
             );
             if (coordenadas) {
               const { barrio, comuna } = await this.obtenerBarrioYComuna(
@@ -275,16 +279,34 @@ export class ApiNormalizer {
 
   private async obtenerCoordenadas(
     calle: string,
-    numero: number
+    numero: number,
+    coords?: {
+      x: number;
+      y: number;
+    }
   ): Promise<Coordinates | null> {
     try {
+      if (coords) {
+        const getAltura = `https://ws.usig.buenosaires.gob.ar/geocoder/2.2/reversegeocoding?x=${coords.x}&y=${coords.y}`;
+        const conversionUrl = `https://ws.usig.buenosaires.gob.ar/rest/convertir_coordenadas/?x=${coords.x}&y=${coords.y}&output=lonlat`;
+
+        const conversionResponse = await axios.get(conversionUrl);
+        const alturaResponse = await axios.get(getAltura);
+        const alturaJsonString = alturaResponse.data.replace(/^\(|\)$/g, "");
+
+        const { calle_alturas, altura_impar, altura_par } =
+          JSON.parse(alturaJsonString);
+
+        const { x: lon, y: lat } = conversionResponse.data.resultado;
+
+        return { y: lat, x: lon, altura_par, altura_impar, calle_alturas };
+      }
       const geocodingUrl = `https://ws.usig.buenosaires.gob.ar/geocoder/2.2/geocoding?cod_calle=${encodeURIComponent(
         calle
       )}&altura=${numero}`;
 
       const geocodingResponse = await axios.get<string>(geocodingUrl);
       const text = geocodingResponse.data;
-
       // Elimina los paréntesis del string
       const jsonString = text.replace(/^\(|\)$/g, "");
       const data = JSON.parse(jsonString);
