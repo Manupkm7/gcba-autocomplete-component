@@ -3,6 +3,12 @@ export interface Coordinates {
     x: number;
     y: number;
     srid?: number;
+    altura_par?: string;
+    altura_impar?: string;
+    calle_alturas?: {
+        inicio: number;
+        fin: number;
+    }[];
 }
 export interface Alt {
     inicio: number;
@@ -16,11 +22,23 @@ export interface Calle {
     descripcion?: string;
     tipo: "CALLE";
     alturas: Alt[];
+    altura_par?: string;
+    altura_impar?: string;
+    calle_alturas?: {
+        inicio: number;
+        fin: number;
+    }[];
 }
 export interface DireccionBase {
     calle: Calle;
     calleCruce?: Calle;
     altura?: number;
+    altura_par?: string;
+    altura_impar?: string;
+    calle_alturas?: {
+        inicio: number;
+        fin: number;
+    }[];
     tipoDireccion: TipoDirection;
     smp?: string;
     coordenadas?: Coordinates;
@@ -67,6 +85,12 @@ export interface DireccionSuggestion {
         descripcion: string;
         tipo: string;
         codigo?: string;
+        altura_par?: string;
+        altura_impar?: string;
+        calle_alturas?: {
+            inicio: number;
+            fin: number;
+        }[];
         altura?: string | number;
         calle?: {
             codigo: string;

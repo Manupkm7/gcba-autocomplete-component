@@ -56,6 +56,12 @@ export declare class ApiNormalizer {
         tipo: string;
         codigo?: string;
         altura?: string | number;
+        altura_par?: string | number;
+        altura_impar?: string | number;
+        calle_alturas?: {
+            inicio: number;
+            fin: number;
+        }[];
         calle?: {
             codigo: string;
         };
