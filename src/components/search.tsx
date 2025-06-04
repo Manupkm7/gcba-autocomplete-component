@@ -63,7 +63,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   const [error, setError] = useState<string | null>(null);
   const inputTimerRef = useRef<NodeJS.Timeout | null>(null);
   const normalizadorRef = useRef<ApiNormalizer | null>(null);
-  console.log(selectedAddresses);
   // Initialize the ApiNormalizer on component mount
   useEffect(() => {
     normalizadorRef.current = new ApiNormalizer({
@@ -206,9 +205,6 @@ export const AddressSearch: React.FC<AddressSearchProps> = ({
   };
 
   const handleSelectSuggestion = (suggestion: DireccionSuggestion) => {
-    if (isDebug) {
-      console.log(suggestion);
-    }
     // Add to selected addresses if not already there
     if (
       !selectedAddresses.some(

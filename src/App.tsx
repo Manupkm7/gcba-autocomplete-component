@@ -7,7 +7,6 @@ export const App = () => {
     const [address, setAddress] = useState<DireccionSuggestion[]>([]);
 
     const handleAddressSelect = (newValue: DireccionSuggestion) => {
-        console.log(newValue);
         const newAddress = [...address, newValue];
         setAddress(newAddress);
     };

@@ -217,7 +217,7 @@ export class ApiNormalizer {
                 coordenadas.y,
                 coordenadas.x
               );
-              console.log(coordenadas);
+
               return {
                 ...dir,
                 altura_par: coordenadas.altura_par,
@@ -297,7 +297,8 @@ export class ApiNormalizer {
       const alturaResponse = await axios.get(getAltura);
       const alturaJsonString = alturaResponse.data.replace(/^\(|\)$/g, "");
 
-      const { calle_alturas, altura_impar, altura_par } = alturaJsonString;
+      const { calle_alturas, altura_impar, altura_par } =
+        JSON.parse(alturaJsonString);
 
       const { x: lon, y: lat } = conversionResponse.data.resultado;
 
@@ -427,6 +428,9 @@ export class ApiNormalizer {
           srid: response.data.coordenadas?.srid || 4326,
         },
         barrio: response.data.nombre_barrio,
+        altura_par: response.data.altura_par,
+        altura_impar: response.data.altura_impar,
+        calle_alturas: response.data.calle_alturas,
         comuna: response.data.nombre_comuna,
       };
 
@@ -534,6 +538,9 @@ export class ApiNormalizer {
             : undefined,
           barrio: dir.barrio,
           comuna: dir.comuna,
+          altura_par: dir.altura_par,
+          altura_impar: dir.altura_impar,
+          calle_alturas: dir.calle_alturas,
         } as DireccionCalleAltura;
 
         // Get SMP if it's a street with number
@@ -545,6 +552,9 @@ export class ApiNormalizer {
               tipo: "DIRECCION",
               codigo: dir.cod_calle,
               altura: dir.altura,
+              altura_par: dir.altura_par,
+              altura_impar: dir.altura_impar,
+              calle_alturas: dir.calle_alturas,
               calle: {
                 codigo: dir.cod_calle,
               },
@@ -649,6 +659,9 @@ export class ApiNormalizer {
     tipo: string;
     codigo?: string;
     altura?: string | number;
+    altura_par?: string | number;
+    altura_impar?: string | number;
+    calle_alturas?: { inicio: number; fin: number }[];
     calle?: {
       codigo: string;
     };
