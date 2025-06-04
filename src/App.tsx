@@ -23,7 +23,7 @@ export const App = () => {
                 <div className="relative">
                     <div className="flex gap-2">
                         <div className="relative flex-grow">
-                            <AddressSearch onAddressSelect={handleAddressSelect} onAddressesRemove={handleAddressesRemove} selectedAddresses={address} />
+                            <AddressSearch onAddressSelect={handleAddressSelect} debug onAddressesRemove={handleAddressesRemove} selectedAddresses={address} />
                         </div>
                     </div>
                 </div>

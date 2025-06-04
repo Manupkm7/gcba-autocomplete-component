@@ -80,6 +80,9 @@ export function useAddressSearch(
           descripcion: d.descripcion || "",
           tipo: "CALLE",
           codigo: d.codigo,
+          altura_par: d.altura_par,
+          altura_impar: d.altura_impar,
+          calle_alturas: d.calle_alturas,
         },
       };
     } else {
@@ -101,6 +104,9 @@ export function useAddressSearch(
             codigo: d.calle.codigo,
           },
           coordenadas: d.coordenadas,
+          altura_par: d.altura_par,
+          altura_impar: d.altura_impar,
+          calle_alturas: d.calle_alturas,
           smp: d.smp,
         },
       };
@@ -173,7 +179,7 @@ export function useAddressSearch(
     // Add to selected addresses if not already there
     if (
       !selectedAddresses.some(
-        (addr) => addr.data.nombre === suggestion.data.nombre
+        (addr) => addr.data?.nombre === suggestion.data.nombre
       )
     ) {
       setSelectedAddresses((prev) => [...prev, suggestion]);
